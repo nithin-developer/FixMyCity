@@ -1,6 +1,5 @@
 import { NavLink } from "react-router-dom";
 import { cn } from "@/utils/utils";
-import { Button } from "@/components/ui/button";
 import { UserCircle, Palette, Shield, KeyRound } from "lucide-react";
 
 const navItems = [

@@ -21,8 +21,6 @@ export function debugAuth() {
       id: authStore.auth.user.id,
       email: authStore.auth.user.email,
       role: authStore.auth.user.role,
-      exp: new Date(authStore.auth.user.exp).toISOString(),
-      expired: Date.now() > authStore.auth.user.exp
     } : null
   })
   
@@ -47,8 +45,7 @@ export function debugAuth() {
  * Force reload auth from localStorage
  */
 export function reloadAuth() {
-  console.log('Forcing auth reload...')
-  useAuthStore.getState().auth.loadStoredAuth()
+  console.log('Reload auth not implemented in demo (noop)')
 }
 
 /**

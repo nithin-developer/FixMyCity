@@ -22,10 +22,10 @@ export function AuthDebugCard() {
     toast.success('Auth data cleaned up successfully')
   }
 
+  // In demo mode we don't have a separate load method; simulate refresh
   const handleReloadAuth = () => {
-    auth.loadStoredAuth()
     refreshData()
-    toast.success('Auth data reloaded')
+    toast.success('Auth data refreshed (demo)')
   }
 
   const handleLogout = () => {
@@ -75,10 +75,11 @@ export function AuthDebugCard() {
             <div>Role: {auth.user?.role || 'None'}</div>
             <div>Token: {auth.accessToken ? `${auth.accessToken.substring(0, 20)}...` : 'None'}</div>
             <div>Authenticated: {auth.isAuthenticated() ? 'Yes' : 'No'}</div>
-            {auth.user?.exp && (
+            {/* Demo: no exp on user object; access token expiry handled separately */}
+            {auth.expiresAt && (
               <div>
-                Expires: {new Date(auth.user.exp).toLocaleString()} 
-                {Date.now() > auth.user.exp && <span className="text-destructive"> (EXPIRED)</span>}
+                Access Expires: {new Date(auth.expiresAt).toLocaleString()}
+                {Date.now() > auth.expiresAt && <span className="text-destructive"> (EXPIRED)</span>}
               </div>
             )}
           </div>

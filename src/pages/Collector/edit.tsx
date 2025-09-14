@@ -120,7 +120,7 @@ export default function EditUserPage() {
     try {
       await updateUserMutation.mutateAsync({
         id: userId!,
-        data: {
+        userData: {
           username: formData.username,
           email: formData.email,
           first_name: formData.first_name,

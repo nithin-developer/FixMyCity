@@ -1,4 +1,4 @@
-import { ReactNode } from 'react'
+import { ReactNode, ComponentType } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { ChevronRight } from 'lucide-react'
 import {
@@ -68,7 +68,10 @@ const SidebarMenuLink = ({ item, href }: { item: NavLink; href: string }) => {
         tooltip={item.title}
       >
         <Link to={item.url} onClick={() => setOpenMobile(false)}>
-          {item.icon && <item.icon />}
+          {item.icon && (() => {
+            const Icon = item.icon as ComponentType<any>
+            return <Icon />
+          })()}
           <span>{item.title}</span>
           {item.badge && <NavBadge>{item.badge}</NavBadge>}
         </Link>
@@ -94,7 +97,7 @@ const SidebarMenuCollapsible = ({
       <SidebarMenuItem>
         <CollapsibleTrigger asChild>
           <SidebarMenuButton tooltip={item.title}>
-            {item.icon && <item.icon />}
+            {item.icon && (() => { const Icon = item.icon as ComponentType<any>; return <Icon /> })()}
             <span>{item.title}</span>
             {item.badge && <NavBadge>{item.badge}</NavBadge>}
             <ChevronRight className='ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90' />
@@ -109,7 +112,7 @@ const SidebarMenuCollapsible = ({
                   isActive={checkIsActive(href, subItem)}
                 >
                   <Link to={subItem.url} onClick={() => setOpenMobile(false)}>
-                    {subItem.icon && <subItem.icon />}
+                    {subItem.icon && (() => { const Icon = subItem.icon as ComponentType<any>; return <Icon /> })()}
                     <span>{subItem.title}</span>
                     {subItem.badge && <NavBadge>{subItem.badge}</NavBadge>}
                   </Link>
@@ -138,7 +141,7 @@ const SidebarMenuCollapsedDropdown = ({
             tooltip={item.title}
             isActive={checkIsActive(href, item)}
           >
-            {item.icon && <item.icon />}
+            {item.icon && (() => { const Icon = item.icon as ComponentType<any>; return <Icon /> })()}
             <span>{item.title}</span>
             {item.badge && <NavBadge>{item.badge}</NavBadge>}
             <ChevronRight className='ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90' />
@@ -155,7 +158,7 @@ const SidebarMenuCollapsedDropdown = ({
                 to={sub.url}
                 className={`${checkIsActive(href, sub) ? 'bg-secondary' : ''}`}
               >
-                {sub.icon && <sub.icon />}
+                {sub.icon && (() => { const Icon = sub.icon as ComponentType<any>; return <Icon /> })()}
                 <span className='max-w-52 text-wrap'>{sub.title}</span>
                 {sub.badge && (
                   <span className='ml-auto text-xs'>{sub.badge}</span>

@@ -20,7 +20,30 @@ import {
   Phone, 
   Mail 
 } from 'lucide-react'
-import type { Appointment, User as UserType, Patient } from '@/lib/api/types'
+// Demo placeholder types (original types module not present)
+interface Appointment {
+  id: string
+  appointment_id: string
+  appointment_time: string
+  status: string
+  appointment_type: string
+  reason?: string
+  notes?: string
+  created_at: string
+  updated_at: string
+}
+interface Patient {
+  first_name: string
+  last_name: string
+  patient_id: string
+  email?: string
+  phone?: string
+}
+interface UserType {
+  first_name: string
+  last_name: string
+  email: string
+}
 
 interface AppointmentDetailsDialogProps {
   open: boolean

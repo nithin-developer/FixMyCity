@@ -18,28 +18,21 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from '@/components/ui/pagination'
-import { useUserAuditLogs } from '@/hooks/use-api'
+// Removed advanced pagination components for demo simplicity
+// import { useUserAuditLogs } from '@/hooks/use-api' // removed for demo
 import {
   Activity,
   Search as SearchIcon,
   Download,
-  Filter,
+  // Placeholder: audit logs hook not implemented in demo. Provide mock data & types.
   Eye,
   Edit,
   Trash,
   Plus,
   User,
   Calendar,
-  Loader2
+  Loader2,
+  Filter
 } from 'lucide-react'
 
 interface DoctorAuditLogsProps {
@@ -47,40 +40,44 @@ interface DoctorAuditLogsProps {
 }
 
 export function DoctorAuditLogs({ className }: DoctorAuditLogsProps) {
+  interface AuditLog {
+    id: string
+    action: string
+    entityType?: string
+    entityId?: string
+    details?: string
+    timestamp?: string
+    ipAddress?: string
+  }
+  // Simple static placeholder list (add a couple sample rows for demo)
+  const [auditLogs] = useState<AuditLog[]>([
+    { id: '1', action: 'login', entityType: 'user', entityId: 'admin_demo', details: 'Demo user login', timestamp: new Date().toISOString(), ipAddress: '127.0.0.1' },
+    { id: '2', action: 'view', entityType: 'patient', entityId: 'P-100', details: 'Viewed patient record', timestamp: new Date().toISOString(), ipAddress: '127.0.0.1' }
+  ])
+  const isLoading = false
+  const error: any = null
   const [searchTerm, setSearchTerm] = useState('')
-  const [actionFilter, setActionFilter] = useState<string>('all')
-  const [entityFilter, setEntityFilter] = useState<string>('all')
-  const [currentPage, setCurrentPage] = useState(1)
+  const [actionFilter, setActionFilter] = useState('all')
+  const [entityFilter, setEntityFilter] = useState('all')
   const [pageSize, setPageSize] = useState(10)
-
-  // Fetch audit logs from API with pagination
-  const { 
-    data: auditLogsResponse, 
-    isLoading, 
-    error 
-  } = useUserAuditLogs({
-    page: currentPage,
-    size: pageSize,
-    ...(actionFilter !== 'all' && { action: actionFilter }),
-    ...(entityFilter !== 'all' && { entity: entityFilter })  // Use 'entity' instead of 'entity_type'
-  })
-
-  const auditLogs = auditLogsResponse?.items || []
-  const totalItems = auditLogsResponse?.total || 0
+  const [currentPage, setCurrentPage] = useState(1)
+  const totalItems = auditLogs.length
 
   // Filter audit logs based on search term (client-side filtering for current page)
   const filteredLogs = useMemo(() => {
-    if (!searchTerm) return auditLogs
-
     const searchLower = searchTerm.toLowerCase()
-    
-    return auditLogs.filter(log => 
-      (log.action && log.action.toLowerCase().includes(searchLower)) ||
-      (log.details && log.details.toLowerCase().includes(searchLower)) ||
-      (log.entityId && log.entityId.toLowerCase().includes(searchLower)) ||
-      (log.entityType && log.entityType.toLowerCase().includes(searchLower))
-    )
-  }, [auditLogs, searchTerm])
+    return auditLogs.filter(log => {
+      if (actionFilter !== 'all' && log.action?.toLowerCase() !== actionFilter.toLowerCase()) return false
+      if (entityFilter !== 'all' && log.entityType?.toLowerCase() !== entityFilter.toLowerCase()) return false
+      if (!searchLower) return true
+      return (
+        (log.action && log.action.toLowerCase().includes(searchLower)) ||
+        (log.details && log.details.toLowerCase().includes(searchLower)) ||
+        (log.entityId && log.entityId.toLowerCase().includes(searchLower)) ||
+        (log.entityType && log.entityType.toLowerCase().includes(searchLower))
+      )
+    })
+  }, [auditLogs, searchTerm, actionFilter, entityFilter])
 
   // Reset to first page when filters change
   const handleFilterChange = (filterType: 'action' | 'entity', value: string) => {
@@ -104,7 +101,8 @@ export function DoctorAuditLogs({ className }: DoctorAuditLogsProps) {
     // Don't reset page for client-side search to allow searching within current page
   }
 
-  const formatDateTime = (timestamp: string) => {
+  const formatDateTime = (timestamp?: string) => {
+    if (!timestamp) return '—'
     return new Date(timestamp).toLocaleString('en-US', {
       year: 'numeric',
       month: 'short',
@@ -156,7 +154,7 @@ export function DoctorAuditLogs({ className }: DoctorAuditLogsProps) {
     }
   }
 
-  const getEntityIcon = (entityType: string) => {
+  const getEntityIcon = (entityType?: string) => {
     if (!entityType) return <Activity className="h-3 w-3" />
     
     switch (entityType.toLowerCase()) {
@@ -355,108 +353,26 @@ export function DoctorAuditLogs({ className }: DoctorAuditLogsProps) {
           </div>
         )}
 
-        {/* Pagination */}
-        {!isLoading && !error && totalItems > pageSize && (
+        {/* Basic pagination (simplified for demo) */}
+        {!isLoading && !error && filteredLogs.length > pageSize && (
           <div className="flex items-center justify-between">
             <div className="text-sm text-muted-foreground">
-              Showing {((currentPage - 1) * pageSize) + 1} to {Math.min(currentPage * pageSize, totalItems)} of {totalItems} entries
+              Page {currentPage} of {Math.ceil(filteredLogs.length / pageSize)}
             </div>
-            
-            <Pagination>
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious 
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault()
-                      if (currentPage > 1) {
-                        setCurrentPage(currentPage - 1)
-                      }
-                    }}
-                    className={currentPage <= 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
-                  />
-                </PaginationItem>
-                
-                {/* First page */}
-                {currentPage > 3 && (
-                  <>
-                    <PaginationItem>
-                      <PaginationLink 
-                        href="#"
-                        onClick={(e) => {
-                          e.preventDefault()
-                          setCurrentPage(1)
-                        }}
-                        className="cursor-pointer"
-                      >
-                        1
-                      </PaginationLink>
-                    </PaginationItem>
-                    {currentPage > 4 && (
-                      <PaginationItem>
-                        <PaginationEllipsis />
-                      </PaginationItem>
-                    )}
-                  </>
-                )}
-                
-                {/* Pages around current page */}
-                {Array.from({ length: Math.ceil(totalItems / pageSize) }, (_, i) => i + 1)
-                  .filter(page => page >= Math.max(1, currentPage - 2) && page <= Math.min(Math.ceil(totalItems / pageSize), currentPage + 2))
-                  .map((page) => (
-                    <PaginationItem key={page}>
-                      <PaginationLink
-                        href="#"
-                        onClick={(e) => {
-                          e.preventDefault()
-                          setCurrentPage(page)
-                        }}
-                        isActive={page === currentPage}
-                        className="cursor-pointer"
-                      >
-                        {page}
-                      </PaginationLink>
-                    </PaginationItem>
-                  ))
-                }
-                
-                {/* Last page */}
-                {currentPage < Math.ceil(totalItems / pageSize) - 2 && (
-                  <>
-                    {currentPage < Math.ceil(totalItems / pageSize) - 3 && (
-                      <PaginationItem>
-                        <PaginationEllipsis />
-                      </PaginationItem>
-                    )}
-                    <PaginationItem>
-                      <PaginationLink 
-                        href="#"
-                        onClick={(e) => {
-                          e.preventDefault()
-                          setCurrentPage(Math.ceil(totalItems / pageSize))
-                        }}
-                        className="cursor-pointer"
-                      >
-                        {Math.ceil(totalItems / pageSize)}
-                      </PaginationLink>
-                    </PaginationItem>
-                  </>
-                )}
-                
-                <PaginationItem>
-                  <PaginationNext 
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault()
-                      if (currentPage < Math.ceil(totalItems / pageSize)) {
-                        setCurrentPage(currentPage + 1)
-                      }
-                    }}
-                    className={currentPage >= Math.ceil(totalItems / pageSize) ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              >Prev</Button>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={currentPage >= Math.ceil(filteredLogs.length / pageSize)}
+                onClick={() => setCurrentPage(p => Math.min(Math.ceil(filteredLogs.length / pageSize), p + 1))}
+              >Next</Button>
+            </div>
           </div>
         )}
       </CardContent>

@@ -1,4 +1,4 @@
-import { ReactNode } from 'react'
+import { ReactNode, useEffect } from 'react'
 import { useAuth } from '@/stores/authStore'
 
 type UserRole =  'admin' | 'collector' | 'municipal_officer'| string
@@ -19,9 +19,16 @@ export function ProtectedRoute({
   const auth = useAuth()
 
   // Check if authentication is required and user is not authenticated
+  // Demo auto-login: if auth required and not authenticated, perform automatic demo login as admin
+  useEffect(() => {
+    if (requireAuth && !auth.isAuthenticated()) {
+      // attempt demo login silently
+      auth.login('admin@example.com', 'admin123')
+    }
+  }, [requireAuth, auth])
   if (requireAuth && !auth.isAuthenticated()) {
-    toast.error('Please log in to access this page')
-    return <Navigate to={`/sign-in?redirect=${encodeURIComponent(window.location.pathname)}`} replace />
+    // While logging in, just render nothing or a placeholder
+    return <div className='p-4 text-sm text-muted-foreground'>Initializing demo session...</div>
   }
 
   // Check if specific roles are required

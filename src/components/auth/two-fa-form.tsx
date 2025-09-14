@@ -14,10 +14,8 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp'
-import { useAuth } from '@/stores/authStore'
 
 interface TwoFAFormProps {
-  email: string
   onBack: () => void
 }
 
@@ -25,9 +23,9 @@ const formSchema = z.object({
   token: z.string().min(6, 'Verification code must be 6 digits').max(6),
 })
 
-export function TwoFAForm({ email, onBack }: TwoFAFormProps) {
+export function TwoFAForm({ onBack }: TwoFAFormProps) {
   const [isLoading, setIsLoading] = useState(false)
-  const auth = useAuth()
+  // auth store not needed in demo 2FA
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
 
@@ -40,20 +38,15 @@ export function TwoFAForm({ email, onBack }: TwoFAFormProps) {
 
   async function onSubmit(data: z.infer<typeof formSchema>) {
     setIsLoading(true)
-    
     try {
-      const result = await auth.verifyTwoFA({ email, token: data.token })
-      
-      if (result.success) {
-        toast.success('Login successful!')
+      // Demo verification: accept token 123456
+      if (data.token === '123456') {
+        toast.success('2FA verified (demo)')
         const redirectTo = searchParams.get('redirect') || '/'
         navigate(redirectTo)
       } else {
-        toast.error(result.error || 'Verification failed')
+        toast.error('Invalid demo code. Use 123456')
       }
-    } catch (error) {
-      console.error('2FA verification error:', error)
-      toast.error('An unexpected error occurred')
     } finally {
       setIsLoading(false)
     }

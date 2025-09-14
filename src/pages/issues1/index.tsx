@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from '@/components/ui/input';
@@ -22,7 +21,6 @@ import { ProfileDropdown } from "@/components/profile-dropdown";
 import { ThemeSwitch } from "@/components/theme-switch";
 
 export default function IssuesPage() {
-  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [departmentFilter, setDepartmentFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');

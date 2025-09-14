@@ -118,7 +118,6 @@ export default function CreateUserPage() {
       await createUserMutation.mutateAsync({
         username: formData.username,
         email: formData.email,
-        password: formData.password,
         first_name: formData.first_name,
         last_name: formData.last_name,
         role: formData.role as "collector" | "doctor" | "nurse",

@@ -46,7 +46,7 @@ export function PasswordForm() {
     },
   });
 
-  async function onSubmit(data: PasswordChangeValues) {
+  async function onSubmit(_data: PasswordChangeValues) {
     setIsLoading(true);
     try {
       return

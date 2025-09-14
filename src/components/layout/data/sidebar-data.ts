@@ -1,15 +1,8 @@
 import { IconLayoutDashboard, IconShieldLock } from "@tabler/icons-react";
 import { AiFillCopy } from "react-icons/ai";
-import {
-  Command,
-  Users,
-  Calendar,
-  Activity,
-  UserCog,
-  Settings,
-} from "lucide-react";
+import { Command, Users, Activity, UserCog, Settings } from "lucide-react";
 
-import { IconPalette, IconTool, IconLock } from "@tabler/icons-react";
+import { IconPalette, IconLock } from "@tabler/icons-react";
 import { type SidebarData } from "../types";
 
 export const sidebarData: SidebarData = {
@@ -20,9 +13,9 @@ export const sidebarData: SidebarData = {
   },
   teams: [
     {
-      name: "EventTrack",
+  name: "FixMyStreet",
       logo: Command,
-      plan: "Vidyavardhaka College of Engineering",
+  plan: "Civic Issue Platform",
     },
   ],
   navGroups: [

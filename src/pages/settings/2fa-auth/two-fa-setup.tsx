@@ -11,8 +11,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import QRCode from "qrcode";
-import { useAuth } from "@/stores/authStore";
-import { authApi } from "@/lib/api/services/auth";
+// authApi disabled in demo mode
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -66,7 +65,7 @@ interface TwoFASetupData {
 }
 
 export function TwoFASetup() {
-  const auth = useAuth();
+  // auth store not directly used in demo 2FA setup
   const [user, setUser] = useState<any>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState<SetupStep>("confirmation");
@@ -83,11 +82,8 @@ export function TwoFASetup() {
 
   // check if user is already enabled for 2FA using authapi
   useEffect(() => {
-    const checkStatus = async () => {
-      const check2FAStatus = await authApi.getCurrentUser();
-      setUser(check2FAStatus);
-    };
-    checkStatus();
+    // Demo: simulate user without 2FA
+    setUser({ two_fa_enabled: false });
   }, []);
 
   const resetSetup = () => {
@@ -109,14 +105,12 @@ export function TwoFASetup() {
   const startSetup = async () => {
     setIsLoading(true);
     try {
-      const data = await authApi.setupTwoFA();
-      setSetupData(data);
-
-      // Generate QR code image
-      const qrDataURL = await QRCode.toDataURL(data.qr_code_uri);
-      setQrCodeUrl(qrDataURL);
-
-      setCurrentStep("install-app");
+  // Demo: fabricate QR code
+  const data = { secret: 'DEMOSECRET', qr_code_uri: 'otpauth://totp/DEMO?secret=DEMOSECRET' }
+  setSetupData(data as any);
+  const qrDataURL = await QRCode.toDataURL(data.qr_code_uri);
+  setQrCodeUrl(qrDataURL);
+  setCurrentStep("install-app");
     } catch (error: any) {
       console.error("2FA setup error:", error);
       toast.error("Failed to start 2FA setup. Please try again.");
@@ -128,14 +122,9 @@ export function TwoFASetup() {
   const verifyToken = async (data: TOTPFormValues) => {
     setIsLoading(true);
     try {
-      await authApi.enableTwoFA(data.token);
-
-      // Update user state
-      if (auth.user) {
-        auth.setUser({
-          ...auth.user,
-          two_fa_enabled: true,
-        });
+      // Demo: accept token 123456
+      if (data.token !== '123456') {
+        throw new Error('Invalid demo token')
       }
 
       setCurrentStep("complete");
@@ -162,15 +151,7 @@ export function TwoFASetup() {
   const disableTwoFA = async () => {
     setIsLoading(true);
     try {
-      await authApi.disableTwoFA();
-
-      // Update user state
-      if (auth.user) {
-        auth.setUser({
-          ...auth.user,
-          two_fa_enabled: false,
-        });
-      }
+      // Demo: pretend to disable
 
       toast.success("2FA has been disabled for your account");
     } catch (error: any) {

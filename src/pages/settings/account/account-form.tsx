@@ -2,6 +2,7 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useEffect } from "react";
+import { useAuth } from "@/stores/authStore";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -32,13 +33,13 @@ const accountFormSchema = z.object({
 type AccountFormValues = z.infer<typeof accountFormSchema>;
 
 export function AccountForm() {
-  const user = ""
+  const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
 
   // Only include editable fields in form
   const defaultValues: Partial<AccountFormValues> = {
-    firstName: user?.first_name || "",
-    lastName: user?.last_name || "",
+  firstName: user?.full_name?.split(' ')[0] || "",
+  lastName: user?.full_name?.split(' ').slice(1).join(' ') || "",
   };
 
   const form = useForm<AccountFormValues>({
@@ -50,13 +51,13 @@ export function AccountForm() {
   useEffect(() => {
     if (user) {
       form.reset({
-        firstName: user.first_name || "",
-        lastName: user.last_name || "",
+        firstName: user.full_name?.split(' ')[0] || "",
+        lastName: user.full_name?.split(' ').slice(1).join(' ') || "",
       });
     }
   }, [user, form]);
 
-  async function onSubmit(data: AccountFormValues) {
+  async function onSubmit(_data: AccountFormValues) {
     setIsLoading(true);
     try {
     return
