@@ -1,166 +1,176 @@
-import { Activity, Users, Calendar, Layers3, Clock, CheckCircle2, XCircle, AlertTriangle } from 'lucide-react';
-import { useAuth } from '@/stores/authStore';
-
-import { Header } from '@/components/layout/header';
-import { Main } from '@/components/layout/main';
-import { Search } from '@/components/search';
-import { ThemeSwitch } from '@/components/theme-switch';
-import { ProfileDropdown } from '@/components/profile-dropdown';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
+import { Activity, Users, Layers3, Clock, Target, Flame, TimerReset, MapPin } from 'lucide-react'
+import { useAuth } from '@/stores/authStore'
+import { Header } from '@/components/layout/header'
+import { Main } from '@/components/layout/main'
+import { Search } from '@/components/search'
+import { ThemeSwitch } from '@/components/theme-switch'
+import { ProfileDropdown } from '@/components/profile-dropdown'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card'
+import { globalIssueMetrics, districtIssueMetrics } from '@/lib/metrics'
+import { issues } from '@/lib/demo-data'
+import { MetricCard, IssueStatusBreakdown, TopCategories, TrendMiniChart } from './components/civic-widgets'
 
 // Super Admin (full access) dashboard
-function StatCard({ icon: Icon, label, value, sub }: { icon: any; label: string; value: string | number; sub?: string }) {
-  return (
-    <Card>
-      <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
-        <CardTitle className="text-sm font-medium flex items-center gap-2"><Icon className="h-4 w-4" />{label}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-semibold">{value}</div>
-        {sub && <div className="text-xs text-muted-foreground mt-1">{sub}</div>}
-      </CardContent>
-    </Card>
-  );
-}
+// Helper for formatting numbers
+const fmt = (n: number | null | undefined, d = 1) => n == null ? '—' : n.toFixed(d)
 
-function SuperAdminDashboard() {
-  // In future: fetch aggregated metrics (batchesCount, trainersCount, eventsActive, sessionsToday, attendanceRate, cancellations, etc.)
+// ADMIN (system-wide) DASHBOARD
+function AdminDashboard() {
+  const m = globalIssueMetrics()
   return (
     <>
       <Header>
         <Search />
-        <div className="ml-auto flex items-center space-x-4">
+        <div className='ml-auto flex items-center space-x-4'>
           <ThemeSwitch />
           <ProfileDropdown />
         </div>
       </Header>
       <Main>
-        <div className="space-y-8">
-          <div className="flex items-center justify-between">
+        <div className='space-y-8'>
+          <div className='flex items-center justify-between'>
             <div>
-              <h1 className="text-3xl font-semibold tracking-tight">Platform Overview</h1>
-              <p className="text-sm text-muted-foreground mt-1">Full administrative visibility across all entities.</p>
+              <h1 className='text-3xl font-semibold tracking-tight'>Civic Platform Overview</h1>
+              <p className='text-sm text-muted-foreground mt-1'>System-wide issue health & activity.</p>
             </div>
-            <Badge variant="outline" className="flex items-center"><Activity className="h-4 w-4 mr-1"/>All Access</Badge>
+            <Badge variant='outline' className='flex items-center'><Activity className='h-4 w-4 mr-1'/>Admin</Badge>
           </div>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <StatCard icon={Layers3} label="Batches" value={8} sub="Active" />
-            <StatCard icon={Users} label="Trainers" value={15} sub="Active" />
-            <StatCard icon={Calendar} label="Events" value={12} sub="This Month" />
-            <StatCard icon={Clock} label="Sessions Today" value={34} />
+          <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-5'>
+            <MetricCard icon={Layers3} label='Total Issues' value={m.total} sub='All districts' />
+            <MetricCard icon={Target} label='Resolution %' value={fmt(m.resolutionRatePct,1)+'%'} sub='Overall rate' />
+            <MetricCard icon={Flame} label='High Priority Open' value={m.highPriorityOpen} sub='Needs attention' accent={m.highPriorityOpen>3? 'High':'OK'} />
+            <MetricCard icon={TimerReset} label='Avg Resolution' value={m.avgResolutionHours? fmt(m.avgResolutionHours)+'h':'—'} sub='Resolved only' />
+            <MetricCard icon={Clock} label='Oldest Open' value={m.oldestOpenHours? fmt(m.oldestOpenHours,0)+'h':'—'} sub='Aging time' />
           </div>
-          <div className="grid gap-4 lg:grid-cols-3">
-            <Card className="lg:col-span-2">
-              <CardHeader>
-                <CardTitle>Events Activity</CardTitle>
-                <CardDescription>Sessions trend (placeholder chart)</CardDescription>
-              </CardHeader>
-              <CardContent className="text-sm text-muted-foreground h-40 flex items-center justify-center border border-dashed rounded-md">Chart area</CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle>Session Health</CardTitle>
-                <CardDescription>Today&apos;s attendance snapshot</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3 text-sm">
-                  <div className="flex items-center justify-between"><span className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-green-500"/>Completed</span><span>18</span></div>
-                  <div className="flex items-center justify-between"><span className="flex items-center gap-2"><Clock className="h-4 w-4 text-blue-500"/>Upcoming</span><span>10</span></div>
-                  <div className="flex items-center justify-between"><span className="flex items-center gap-2"><XCircle className="h-4 w-4 text-red-500"/>Cancelled</span><span>3</span></div>
-                  <div className="flex items-center justify-between"><span className="flex items-center gap-2"><AlertTriangle className="h-4 w-4 text-amber-500"/>At Risk</span><span>3</span></div>
-                </div>
-              </CardContent>
-            </Card>
+          <div className='grid gap-4 lg:grid-cols-3'>
+            <div className='space-y-4 lg:col-span-2'>
+              <TrendMiniChart metrics={m} />
+              <IssueStatusBreakdown metrics={m} />
+            </div>
+            <div className='space-y-4'>
+              <TopCategories metrics={m} />
+              <Card>
+                <CardHeader>
+                  <CardTitle>Data Snapshot</CardTitle>
+                  <CardDescription>Static demo numbers</CardDescription>
+                </CardHeader>
+                <CardContent className='text-xs space-y-2 text-muted-foreground'>
+                  <div>Sample Records: {issues.length}</div>
+                  <div>Districts: 4</div>
+                  <div>Updated: realtime (in-memory)</div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Administrative Actions</CardTitle>
-              <CardDescription>Audit style list placeholder</CardDescription>
-            </CardHeader>
-            <CardContent className="text-sm text-muted-foreground space-y-2">
-              <div>No recent actions loaded.</div>
-            </CardContent>
-          </Card>
         </div>
       </Main>
     </>
-  );
+  )
 }
 
-// Admin (reports only) dashboard
-function ReportsDashboard() {
+// COLLECTOR dashboard (district focus)
+function CollectorDashboard({ district }: { district: string }) {
+  const m = districtIssueMetrics(district)
   return (
-    <div className="p-6 space-y-8">
-      <div>
-        <h1 className="text-3xl font-semibold tracking-tight">Reports Center</h1>
-        <p className="text-sm text-muted-foreground mt-1">Key operational and performance indicators.</p>
+    <div className='p-6 space-y-8'>
+      <div className='flex items-center justify-between'>
+        <div>
+          <h1 className='text-3xl font-semibold tracking-tight'>District Overview</h1>
+          <p className='text-sm text-muted-foreground mt-1'>{district} issue status & workload.</p>
+        </div>
+        <Badge variant='outline' className='flex items-center'><MapPin className='h-4 w-4 mr-1'/>{district}</Badge>
       </div>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <StatCard icon={Calendar} label="Events This Quarter" value={28} />
-        <StatCard icon={Clock} label="Avg. Session Duration" value="2h" />
-        <StatCard icon={Users} label="Active Trainers" value={14} />
+      <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-5'>
+        <MetricCard icon={Layers3} label='Issues' value={m.total} />
+        <MetricCard icon={Target} label='Resolved %' value={fmt(m.resolutionRatePct,1)+'%'} />
+        <MetricCard icon={Flame} label='High Pri Open' value={m.highPriorityOpen} />
+        <MetricCard icon={TimerReset} label='Avg Res (h)' value={m.avgResolutionHours? fmt(m.avgResolutionHours):'—'} />
+        <MetricCard icon={Clock} label='Oldest (h)' value={m.oldestOpenHours? fmt(m.oldestOpenHours,0):'—'} />
       </div>
-      <Card>
-        <CardHeader>
-          <CardTitle>Attendance Rate</CardTitle>
-          <CardDescription>Rolling 7-day (placeholder)</CardDescription>
-        </CardHeader>
-        <CardContent className="h-48 flex items-center justify-center text-sm text-muted-foreground border border-dashed rounded-md">Line chart area</CardContent>
-      </Card>
-      <Card>
-        <CardHeader>
-          <CardTitle>Upcoming High-Load Days</CardTitle>
-          <CardDescription>Days exceeding session threshold</CardDescription>
-        </CardHeader>
-        <CardContent className="text-sm text-muted-foreground space-y-2">
-          <div>No data loaded.</div>
-        </CardContent>
-      </Card>
+      <div className='grid gap-4 lg:grid-cols-3'>
+        <div className='space-y-4 lg:col-span-2'>
+          <TrendMiniChart metrics={m} />
+          <IssueStatusBreakdown metrics={m} />
+        </div>
+        <TopCategories metrics={m} />
+      </div>
     </div>
-  );
+  )
 }
 
-// Trainer dashboard (attendance focus)
-function TrainerDashboard() {
+// MUNICIPAL OFFICER dashboard (operational)
+function OfficerDashboard({ district }: { district: string }) {
+  const m = districtIssueMetrics(district)
+  // derive aging list (open & in_progress sorted by created date ascending)
+  const aging = issues.filter(i => i.district === district && (i.status === 'open' || i.status === 'in_progress'))
+    .map(i => ({ ...i, ageH: (Date.now() - new Date(i.createdAt).getTime()) / 3600000 }))
+    .sort((a,b)=> b.ageH - a.ageH).slice(0,5)
+  const today = new Date()
+  const todayNew = issues.filter(i => i.district === district && new Date(i.createdAt).toDateString() === today.toDateString())
   return (
-    <div className="p-6 space-y-8">
-      <div>
-        <h1 className="text-3xl font-semibold tracking-tight">My Sessions</h1>
-        <p className="text-sm text-muted-foreground mt-1">Daily view of assigned event sessions & attendance actions.</p>
+    <div className='p-6 space-y-8'>
+      <div className='flex items-center justify-between'>
+        <div>
+          <h1 className='text-3xl font-semibold tracking-tight'>Operational Dashboard</h1>
+          <p className='text-sm text-muted-foreground mt-1'>Live workload & prioritized items for {district}.</p>
+        </div>
+        <Badge variant='outline' className='flex items-center'><Users className='h-4 w-4 mr-1'/>Officer</Badge>
       </div>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <StatCard icon={Calendar} label="Today" value={4} sub="Sessions" />
-        <StatCard icon={CheckCircle2} label="Completed" value={1} />
-        <StatCard icon={Clock} label="Upcoming" value={3} />
-        <StatCard icon={AlertTriangle} label="Pending Mark" value={2} />
+      <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-5'>
+        <MetricCard icon={Layers3} label='Active' value={m.open + m.inProgress} sub='Open + In Progress' />
+        <MetricCard icon={Flame} label='High Priority' value={m.highPriorityOpen} />
+        <MetricCard icon={Target} label='Resolved %' value={fmt(m.resolutionRatePct,1)+'%'} />
+        <MetricCard icon={TimerReset} label='Avg Res (h)' value={m.avgResolutionHours? fmt(m.avgResolutionHours):'—'} />
+        <MetricCard icon={Clock} label='Oldest (h)' value={m.oldestOpenHours? fmt(m.oldestOpenHours,0):'—'} />
       </div>
-      <Card>
-        <CardHeader>
-          <CardTitle>Today&apos;s Schedule</CardTitle>
-          <CardDescription>Interactive attendance list (placeholder)</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3 text-sm text-muted-foreground">
-          <div>No sessions loaded.</div>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Attendance Actions</CardTitle>
-          <CardDescription>Last updates you performed</CardDescription>
-        </CardHeader>
-        <CardContent className="text-sm text-muted-foreground space-y-2">
-          <div>None recorded.</div>
-        </CardContent>
-      </Card>
+      <div className='grid gap-4 lg:grid-cols-3'>
+        <IssueStatusBreakdown metrics={m} />
+        <TopCategories metrics={m} />
+        <TrendMiniChart metrics={m} />
+      </div>
+      <div className='grid gap-4 lg:grid-cols-2'>
+        <Card>
+          <CardHeader>
+            <CardTitle>Aging Issues</CardTitle>
+            <CardDescription>Oldest unresolved items</CardDescription>
+          </CardHeader>
+          <CardContent className='space-y-2 text-xs'>
+            {aging.length === 0 && <div className='text-muted-foreground'>None</div>}
+            {aging.map(a => (
+              <div key={a.id} className='flex items-center justify-between border rounded px-2 py-1'>
+                <span className='flex-1 truncate'>{a.id} · {a.category}</span>
+                <span className='ml-2 text-amber-600 font-medium'>{a.ageH.toFixed(0)}h</span>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Today&apos;s New Issues</CardTitle>
+            <CardDescription>Created since midnight</CardDescription>
+          </CardHeader>
+          <CardContent className='space-y-2 text-xs'>
+            {todayNew.length === 0 && <div className='text-muted-foreground'>No new issues today.</div>}
+            {todayNew.map(t => (
+              <div key={t.id} className='flex items-center justify-between border rounded px-2 py-1'>
+                <span className='flex-1 truncate'>{t.id} · {t.category}</span>
+                <span className='ml-2'>{t.priority}</span>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      </div>
     </div>
-  );
+  )
 }
 
 export default function Dashboard() {
-  const role = useAuth().user?.role;
-  if (role === 'super_admin') return <SuperAdminDashboard />;
-  if (role === 'collector') return <ReportsDashboard />;
-  if (role === 'Municipal_Officer') return <TrainerDashboard />;
-  return <SuperAdminDashboard />; // fallback
+  const role = useAuth().user?.role
+  // choose a demo district for role-based scoping (could be stored in user later)
+  const demoDistrict = role === 'collector' ? 'Mysuru' : role === 'municipal_officer' ? 'Mysuru' : 'Mysuru'
+  if (role === 'admin') return <AdminDashboard />
+  if (role === 'collector') return <CollectorDashboard district={demoDistrict} />
+  if (role === 'municipal_officer') return <OfficerDashboard district={demoDistrict} />
+  return <AdminDashboard />
 }
