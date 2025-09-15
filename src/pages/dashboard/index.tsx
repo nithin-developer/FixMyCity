@@ -47,7 +47,7 @@ function AdminDashboard() {
           <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-5'>
             <MetricCard icon={Layers3} label='Issues' value={m.total} sub='Total reported' />
             <MetricCard icon={Target} label='Solved' value={fmt(m.resolutionRatePct,1)+'%'} sub='% resolved' />
-            <MetricCard icon={Flame} label='High Priority' value={m.highPriorityOpen} sub='Still open' accent={m.highPriorityOpen>3? } />
+            <MetricCard icon={Flame} label='High Priority' value={m.highPriorityOpen} sub='Still open' />
             <MetricCard icon={TimerReset} label='Avg Fix Time' value={m.avgResolutionHours? fmt(m.avgResolutionHours)+'h':'—'} sub='Hours to solve' />
             <MetricCard icon={Clock} label='Longest Open Issue' value={formatAge(m.oldestOpenHours)} sub='Time since reported' />
           </div>
