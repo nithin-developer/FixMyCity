@@ -1,5 +1,5 @@
 import Silk from "@/components/aurora";
-import { IconReportMedical } from "@tabler/icons-react";
+import {  IconGlobeFilled,  } from "@tabler/icons-react";
 import CircularText from "@/components/curvedloop";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/stores/authStore";
@@ -46,8 +46,8 @@ export default function SignIn2() {
           />
         </div>
         <div className="relative z-20 flex items-center text-lg font-medium">
-          <IconReportMedical className="mr-2 h-6 w-6" />
-          FixMyStreet
+           <IconGlobeFilled className="mr-2 h-6 w-6 text-white" />
+            FixMyCity
         </div>
 
         {/* <img
@@ -60,7 +60,7 @@ export default function SignIn2() {
 
         <div className="relative z-20 mt-auto flex flex-col items-center space-y-4">
           <CircularText
-            text="FIXMYSTREET☆CIVIC☆ENGAGEMENT☆"
+            text="FIXMYCITY☆CIVIC☆SYSTEM☆"
             onHover="speedUp"
             spinDuration={20}
             className="custom-class"
@@ -70,7 +70,7 @@ export default function SignIn2() {
         <div className="relative z-20 mt-auto">
           <div className="space-y-4">
             <h2 className="text-3xl font-bold leading-tight">
-              Welcome to FixMyStreet Demo
+              Welcome to FixMyCity Demo
             </h2>
             <p className="text-lg text-white/90 leading-relaxed">
               Report, track and manage local civic issues. Explore different
@@ -95,17 +95,17 @@ export default function SignIn2() {
           <div className="flex flex-col space-y-2 text-left mb-2">
             <h1 className="text-2xl font-semibold tracking-tight">Demo Login</h1>
             <p className="text-muted-foreground text-sm">
-              Pick a role below to explore FixMyStreet.
+              Pick a role below to explore FixMyCity.
             </p>
           </div>
-          <div className="grid gap-3">
+          <div className="grid gap-3 mt-4">
             {demoUsers.map((u) => (
               <Button key={u.email} onClick={() => handleDemoLogin(u)} variant="outline">
                 Continue as {u.label}
               </Button>
             ))}
           </div>
-          <div className="mt-4 rounded-md border p-3 bg-muted/40">
+          {/* <div className="mt-4 rounded-md border p-3 bg-muted/40">
             <p className="text-xs font-medium mb-2">Demo Credentials</p>
             <ul className="space-y-1 text-xs font-mono">
               {demoUsers.map(u => (
@@ -114,9 +114,9 @@ export default function SignIn2() {
                 </li>
               ))}
             </ul>
-          </div>
+          </div> */}
           <p className="text-muted-foreground px-2 text-center text-xs mt-4">
-            This environment uses a simplified in-browser demo auth. Do not enter
+            This environment uses a simplified in-browser demo auth. Not entering
             real credentials.
           </p>
         </div>

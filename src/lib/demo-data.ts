@@ -1,4 +1,4 @@
-// Demo data for FixMyStreet dashboards
+// Demo data for FixMyCity dashboards
 // In a real app this would come from an API.
 export interface IssueRecord {
   id: string

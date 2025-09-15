@@ -5,9 +5,23 @@ import { Header } from "@/components/layout/header";
 import { Search } from "@/components/search";
 import { ThemeSwitch } from "@/components/theme-switch";
 import { ProfileDropdown } from "@/components/profile-dropdown";
+import { AdminsTable, AdminRow } from "@/pages/issues1/issues-table";
 
 export default function AdminsPage() {
   const [loading] = useState(false);
+  const [admins, setAdmins] = useState<AdminRow[]>([
+    { id: '1', name: 'Admin User', email: 'admin@example.com', role: 'Administrator', active: true },
+    { id: '2', name: 'Jane Doe', email: 'jane@example.com', role: 'Administrator', active: true },
+    { id: '3', name: 'John Smith', email: 'john@example.com', role: 'Moderator', active: false },
+  ]);
+
+  const handleEdit = (row: AdminRow) => {
+    alert(`Edit admin ${row.name}`);
+  };
+
+  const handleToggleActive = (row: AdminRow) => {
+    setAdmins(prev => prev.map(a => a.id === row.id ? { ...a, active: !a.active } : a));
+  };
 
   return (
     <>
@@ -21,7 +35,7 @@ export default function AdminsPage() {
       <div className="container mx-auto p-6 space-y-6">
       <header className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Administrators</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Administrators</h1>
           <p className="text-muted-foreground">
             Manage administrator accounts and permissions.
           </p>
@@ -37,30 +51,7 @@ export default function AdminsPage() {
         </div>
       </header>
 
-      <div className="rounded-md border">
-        <div className="p-4">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b">
-                <th className="text-left p-2">Name</th>
-                <th className="text-left p-2">Email</th>
-                <th className="text-left p-2">Role</th>
-                <th className="text-left p-2">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr className="border-b">
-                <td className="p-2">Admin User</td>
-                <td className="p-2">admin@example.com</td>
-                <td className="p-2">Administrator</td>
-                <td className="p-2">
-                  <Button variant="outline" size="sm">Edit</Button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <AdminsTable data={admins} onEdit={handleEdit} onToggleActive={handleToggleActive} />
       </div>
     </>
   );

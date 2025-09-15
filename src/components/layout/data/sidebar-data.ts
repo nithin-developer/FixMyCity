@@ -13,7 +13,7 @@ export const sidebarData: SidebarData = {
   },
   teams: [
     {
-  name: "FixMyStreet",
+  name: "FixMyCity",
       logo: Command,
   plan: "Civic Issue Platform",
     },

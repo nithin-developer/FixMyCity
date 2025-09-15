@@ -14,6 +14,14 @@ import { MetricCard, IssueStatusBreakdown, TopCategories, TrendMiniChart } from 
 // Super Admin (full access) dashboard
 // Helper for formatting numbers
 const fmt = (n: number | null | undefined, d = 1) => n == null ? '—' : n.toFixed(d)
+// Helper to present hours as days + hours for readability
+const formatAge = (hours: number | null | undefined) => {
+  if (hours == null) return '—'
+  if (hours < 24) return `${Math.round(hours)}h`
+  const days = Math.floor(hours / 24)
+  const remH = Math.round(hours - days * 24)
+  return remH > 0 ? `${days}d ${remH}h` : `${days}d`
+}
 
 // ADMIN (system-wide) DASHBOARD
 function AdminDashboard() {
@@ -37,11 +45,11 @@ function AdminDashboard() {
             <Badge variant='outline' className='flex items-center'><Activity className='h-4 w-4 mr-1'/>Admin</Badge>
           </div>
           <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-5'>
-            <MetricCard icon={Layers3} label='Total Issues' value={m.total} sub='All districts' />
-            <MetricCard icon={Target} label='Resolution %' value={fmt(m.resolutionRatePct,1)+'%'} sub='Overall rate' />
-            <MetricCard icon={Flame} label='High Priority Open' value={m.highPriorityOpen} sub='Needs attention' accent={m.highPriorityOpen>3? 'High':'OK'} />
-            <MetricCard icon={TimerReset} label='Avg Resolution' value={m.avgResolutionHours? fmt(m.avgResolutionHours)+'h':'—'} sub='Resolved only' />
-            <MetricCard icon={Clock} label='Oldest Open' value={m.oldestOpenHours? fmt(m.oldestOpenHours,0)+'h':'—'} sub='Aging time' />
+            <MetricCard icon={Layers3} label='Issues' value={m.total} sub='Total reported' />
+            <MetricCard icon={Target} label='Solved' value={fmt(m.resolutionRatePct,1)+'%'} sub='% resolved' />
+            <MetricCard icon={Flame} label='High Priority' value={m.highPriorityOpen} sub='Still open' accent={m.highPriorityOpen>3? 'High':'OK'} />
+            <MetricCard icon={TimerReset} label='Avg Fix Time' value={m.avgResolutionHours? fmt(m.avgResolutionHours)+'h':'—'} sub='Hours to solve' />
+            <MetricCard icon={Clock} label='Longest Open Issue' value={formatAge(m.oldestOpenHours)} sub='Time since reported' />
           </div>
           <div className='grid gap-4 lg:grid-cols-3'>
             <div className='space-y-4 lg:col-span-2'>
@@ -82,11 +90,11 @@ function CollectorDashboard({ district }: { district: string }) {
         <Badge variant='outline' className='flex items-center'><MapPin className='h-4 w-4 mr-1'/>{district}</Badge>
       </div>
       <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-5'>
-        <MetricCard icon={Layers3} label='Issues' value={m.total} />
-        <MetricCard icon={Target} label='Resolved %' value={fmt(m.resolutionRatePct,1)+'%'} />
-        <MetricCard icon={Flame} label='High Pri Open' value={m.highPriorityOpen} />
-        <MetricCard icon={TimerReset} label='Avg Res (h)' value={m.avgResolutionHours? fmt(m.avgResolutionHours):'—'} />
-        <MetricCard icon={Clock} label='Oldest (h)' value={m.oldestOpenHours? fmt(m.oldestOpenHours,0):'—'} />
+        <MetricCard icon={Layers3} label='Issues' value={m.total} sub='This district' />
+        <MetricCard icon={Target} label='Solved' value={fmt(m.resolutionRatePct,1)+'%'} sub='% resolved' />
+        <MetricCard icon={Flame} label='High Priority' value={m.highPriorityOpen} sub='Open now' />
+        <MetricCard icon={TimerReset} label='Avg Fix Time' value={m.avgResolutionHours? fmt(m.avgResolutionHours):'—'} sub='Hours' />
+  <MetricCard icon={Clock} label='Longest Open Issue' value={formatAge(m.oldestOpenHours)} sub='Time since reported' />
       </div>
       <div className='grid gap-4 lg:grid-cols-3'>
         <div className='space-y-4 lg:col-span-2'>
@@ -118,11 +126,11 @@ function OfficerDashboard({ district }: { district: string }) {
         <Badge variant='outline' className='flex items-center'><Users className='h-4 w-4 mr-1'/>Officer</Badge>
       </div>
       <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-5'>
-        <MetricCard icon={Layers3} label='Active' value={m.open + m.inProgress} sub='Open + In Progress' />
-        <MetricCard icon={Flame} label='High Priority' value={m.highPriorityOpen} />
-        <MetricCard icon={Target} label='Resolved %' value={fmt(m.resolutionRatePct,1)+'%'} />
-        <MetricCard icon={TimerReset} label='Avg Res (h)' value={m.avgResolutionHours? fmt(m.avgResolutionHours):'—'} />
-        <MetricCard icon={Clock} label='Oldest (h)' value={m.oldestOpenHours? fmt(m.oldestOpenHours,0):'—'} />
+        <MetricCard icon={Layers3} label='Active Issues' value={m.open + m.inProgress} sub='Open + working' />
+        <MetricCard icon={Flame} label='High Priority' value={m.highPriorityOpen} sub='Need action' />
+        <MetricCard icon={Target} label='Solved' value={fmt(m.resolutionRatePct,1)+'%'} sub='% resolved' />
+        <MetricCard icon={TimerReset} label='Avg Fix Time' value={m.avgResolutionHours? fmt(m.avgResolutionHours):'—'} sub='Hours' />
+  <MetricCard icon={Clock} label='Longest Open Issue' value={formatAge(m.oldestOpenHours)} sub='Time since reported' />
       </div>
       <div className='grid gap-4 lg:grid-cols-3'>
         <IssueStatusBreakdown metrics={m} />

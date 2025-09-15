@@ -1,9 +1,11 @@
-import { Card, CardContent } from '@/components/ui/card';
-import { Header } from '@/components/layout/header';
-import { Search } from '@/components/search';
-import { ThemeSwitch } from '@/components/theme-switch';
-import { ProfileDropdown } from '@/components/profile-dropdown';
-import { CollectorCard, Collector } from "../../components/collector-card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Header } from "@/components/layout/header";
+import { Search } from "@/components/search";
+import { ThemeSwitch } from "@/components/theme-switch";
+import { ProfileDropdown } from "@/components/profile-dropdown";
+import { Collector } from "../../components/collector-card";
+import { EyeIcon, Plus, RefreshCw, Trash2, UsersIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const demoCollectors: Collector[] = [
   {
@@ -65,38 +67,103 @@ const CollectorsPage: React.FC = () => {
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <div>
             <h1 className="text-2xl font-semibold">Collectors</h1>
-            <p className="text-muted-foreground">Download and manage collector archives</p>
+            <p className="text-muted-foreground">
+              Manage District Collectors and their details
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => alert("Refresh")}
+              title="Refresh"
+            >
+              <RefreshCw className="h-4 w-4 animate-spin-once" />
+            </Button>
+            <Button variant="default" onClick={() => alert("Add Collector")}>
+              <Plus className="h-4 w-4" />
+              Add Collector
+            </Button>
           </div>
         </div>
 
-        {/* Demo Collectors Download Section */}
-        <Card>
-          <CardContent className="p-6">
-            {/* Demo Collectors Cards replacing Table */}
-            <div className="border rounded-lg p-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-24 gap-y-4">
-                {demoCollectors.map((collector, idx) => (
-                  <CollectorCard 
-                    key={idx} 
-                    collector={collector}
-                    onView={() => handleViewCollector(collector.name)}
-                    onDelete={() => handleDeleteCollector(collector.name)}
-                  />
-                ))}
-              </div>
-            </div>
+        {/* Demo Collectors Cards (using batch card style) */}
+        <div className="grid gap-4 md:grid-cols-3 mt-6">
+          {demoCollectors.map((c, i) => (
+            <Card
+              key={i}
+              className="group relative overflow-hidden border-border/60 hover:shadow-md transition-all"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 opacity-100 transition-opacity pointer-events-none" />
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="h-12 w-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                      <UsersIcon className="h-6 w-6 text-primary" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-lg font-semibold">
+                        {c.name}
+                      </CardTitle>
+                      <p className="text-sm text-muted-foreground">
+                        District: {c.district}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </CardHeader>
 
-            {/* Demo Collectors Summary */}
-            <div className="flex items-center justify-between mt-4">
-              <p className="text-sm text-muted-foreground">
-                Showing {demoCollectors.length} collectors
-              </p>
-              <div className="text-sm text-muted-foreground">
-                Page 1 of 1
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+              <CardContent className="space-y-5">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Phone:</span>
+                    <span className="font-medium">{c.phone}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Email:</span>
+                    <span className="font-medium truncate max-w-[150px]">
+                      {c.email}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Address:</span>
+                    <span className="font-medium truncate max-w-[150px]">
+                      {c.address}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <Button
+                    size="sm"
+                    onClick={() => handleViewCollector(c.name)}
+                    className="flex items-center justify-center gap-2"
+                  >
+                    <EyeIcon className="h-4 w-4" />
+                    View
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleDeleteCollector(c.name)}
+                    className="flex items-center justify-center gap-2 hover:text-red-500"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Delete
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Summary */}
+        <div className="flex items-center justify-between mt-4">
+          <p className="text-sm text-muted-foreground">
+            Showing {demoCollectors.length} collectors
+          </p>
+          <div className="text-sm text-muted-foreground">Page 1 of 1</div>
+        </div>
       </div>
     </>
   );
